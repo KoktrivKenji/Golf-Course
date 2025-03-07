@@ -39,7 +39,7 @@ cd online-golf-booking
 cd backend
 npm install
 
-# Install frontend dependencies (if separate)
+# Install frontend dependencies
 cd ../online-golf-booking
 npm install
 ```
@@ -62,7 +62,7 @@ node backend/seeders/teeTimeSeeder.js
 cd backend
 npm run dev
 
-# Start frontend (if separate)
+# Start frontend
 cd online-golf-booking
 npm start
 ```
