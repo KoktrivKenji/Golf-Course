@@ -63,7 +63,7 @@ cd backend
 npm run dev
 
 # Start frontend (if separate)
-cd frontend
+cd online-golf-booking
 npm start
 ```
 
@@ -93,7 +93,7 @@ POST /api/chat - Interact with AI chatbot
 ```bash
 # Run system tests:
 cd backend
-npm test
+node tests/systemTest.js
  ```
 
 ```bash
