@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Golf Booking</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <div class="auth-container">
+        <h2>Sign Up</h2>
+        <form id="signup-form">
+            <input type="text" id="signup-name" placeholder="Full Name" required>
+            <input type="text" id="signup-username" placeholder="Username" required>
+            <input type="tel" id="signup-phone" placeholder="Phone Number" required>
+            <input type="email" id="signup-email" placeholder="Email" required>
+            <input type="password" id="signup-password" placeholder="Password" required>
+            <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+        <p id="auth-message"></p> <p class="auth-redirect">Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+
+    <script>
+        // Check if passwords match
+        function validatePasswords() {
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('auth-message').innerText = "Passwords do not match";
+                document.getElementById('auth-message').className = "error-message";
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Signup Function
+        document.getElementById("signup-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            
+            if (!validatePasswords()) {
+                return;
+            }
+            
+            const name = document.getElementById("signup-name").value;
+            const username = document.getElementById("signup-username").value;
+            const phone = document.getElementById("signup-phone").value;
+            const email = document.getElementById("signup-email").value;
+            const password = document.getElementById("signup-password").value;
+
+            // Make an API call to the backend to create a new user
+            fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, username, phone, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("auth-message").innerText = data.message || "Signup Successful!";
+                    document.getElementById("auth-message").className = "success-message";
+                    
+                    // Redirect to profile page after successful registration
+                    setTimeout(() => {
+                        window.location.href = 'profile.html';
+                    }, 1500);
+                } else {
+                    document.getElementById("auth-message").innerText = data.message || "Signup failed. Please try again.";
+                    document.getElementById("auth-message").className = "error-message";
+                }
+            })
+            .catch(error => {
+                document.getElementById("auth-message").innerText = error.message || "Signup failed. Please try again.";
+                document.getElementById("auth-message").className = "error-message";
+            });
+        });
+
+        fetch("navbar.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("navbar-container").innerHTML = data;
+            });
+    </script>
+
+    <style>
+        body {
+            background: url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover;
+        }
+        
+        .success-message {
+            color: #28a745;
+        }
+        
+        .error-message {
+            color: #dc3545;
+        }
+        
+        .auth-redirect {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .auth-redirect a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .auth-redirect a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+</body>
+</html>
