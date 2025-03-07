@@ -91,9 +91,9 @@ POST /api/chat - Interact with AI chatbot
 
 ## Testing
 ```bash
-Run system tests:
- cd backend
- npm test
+# Run system tests:
+cd backend
+npm test
  ```
 
 ```bash
