@@ -1,6 +1,5 @@
-DROP TABLE IF EXISTS bookings;
-DROP TABLE IF EXISTS tee_times;
-DROP TABLE IF EXISTS users;
+create database golf_booking;
+use golf_booking;
 
 CREATE TABLE users (
     id VARCHAR(36) PRIMARY KEY,
