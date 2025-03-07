@@ -40,7 +40,7 @@ cd backend
 npm install
 
 # Install frontend dependencies (if separate)
-cd ../frontend
+cd ../online-golf-booking
 npm install
 ```
 
