@@ -48,13 +48,16 @@ npm install
 Create a `.env` file in the backend directory with:
 
 4. Initialize the database:
+```bash
 # Run database migrations
 mysql -u root -p < backend/database/migrations/schema.sql
 
 # Seed initial data
 node backend/seeders/teeTimeSeeder.js
+```
 
 5. Start the application:
+```bash
 # Start backend server
 cd backend
 npm run dev
@@ -62,8 +65,10 @@ npm run dev
 # Start frontend (if separate)
 cd frontend
 npm start
+```
 
 ## API Endpoints
+```bash
 # Authentication
 POST /api/register - Register new user
 POST /auth/login - User login
@@ -73,21 +78,25 @@ POST /auth/logout - User logout
 GET /api/tee-times/:course/:holes - Get available tee times
 POST /api/bookings - Create a booking
 GET /api/my-bookings - Get user's bookings
-
+```
+```bash
 # User Profile
 GET /api/current-user - Get current user profile
 POST /api/update-profile - Update user profile
 
 # AI Assistant
 POST /api/chat - Interact with AI chatbot
+```
 
 
 ## Testing
+```bash
 Run system tests:
  cd backend
  npm test
+ ```
 
-
+```bash
 ## Security Features
 JWT Authentication
 Password Hashing
@@ -120,3 +129,4 @@ UserId (foreign key)
 TeeTimeId (foreign key)
 players
 timestamps
+```
