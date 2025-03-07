@@ -105,28 +105,3 @@ CORS Protection
 Input Validation
 Secure Headers
 
-## Database Schema
-# Users Table
-id (UUID)
-name
-username
-email
-password (hashed)
-phone
-profile_picture
-
-# Tee Times Table
-id (UUID)
-course
-date
-time
-holes
-available
-
-# Bookings Table
-id (UUID)
-UserId (foreign key)
-TeeTimeId (foreign key)
-players
-timestamps
-```
