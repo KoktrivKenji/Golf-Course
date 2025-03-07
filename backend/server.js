@@ -430,7 +430,7 @@ app.post('/api/chat', async (req, res) => {
     const { prompt } = req.body;
     
     // Configure model
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     
     // Generate context-aware prompt
     const enhancedPrompt = `As a golf booking assistant, help with: ${prompt}. 
