@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Golf Course</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <div id="navbar-container"></div>
+
+    <!-- Authentication Check -->
+    <div id="auth-check" class="auth-check">
+        <p>Please <a href="login.html">login</a> to book a tee time.</p>
+    </div>
+
+    <!-- Tee Time Selection -->
+    <div id="booking-section" style="display: none;">
+        <div class="booking-container">
+            <h2 class="form-title">Select a Course and Holes</h2>
+            <div class="course-selection">
+                <select id="course-select" class="booking-select">
+                    <option value="">Select a Course</option>
+                    <option value="Pine Valley">Pine Valley</option>
+                    <option value="Augusta National">Augusta National</option>
+                    <option value="St Andrews">St Andrews</option>
+                    <option value="Pebble Beach">Pebble Beach</option>
+                </select>
+                <select id="holes-select" class="booking-select">
+                    <option value="">Select Holes</option>
+                    <option value="9H">9 Holes</option>
+                    <option value="18H">18 Holes</option>
+                </select>
+                <button id="search-tee-times" class="search-button">Search Tee Times</button>
+            </div>
+        </div>
+
+        <!-- Tee Times Display -->
+        <div class="tee-times-container">
+            <h2 class="form-title">Available Tee Times</h2>
+            <div id="tee-times-list" class="tee-times-list">
+                <!-- Tee times will be displayed here -->
+            </div>
+        </div>
+
+        <!-- Booking Form -->
+        <div id="booking-form-container" class="booking-container" style="display: none;">
+            <h2 class="form-title">Complete Your Booking</h2>
+            <form id="booking-form">
+                <div id="selected-tee-time" class="selected-tee-time"></div>
+                <input type="hidden" id="tee-time-id">
+                <input type="number" id="players" min="1" max="4" placeholder="Number of Players" required>
+                <button type="submit">Book Now</button>
+            </form>
+            <p id="booking-message"></p>
+        </div>
+
+        <!-- Booking Confirmation -->
+        <div id="booking-confirmation" class="booking-container" style="display: none;">
+            <h2 class="form-title">Booking Confirmed!</h2>
+            <div id="booking-details" class="booking-details"></div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        function checkAuth() {
+            fetch('/api/current-user')
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('auth-check').style.display = 'none';
+                        document.getElementById('booking-section').style.display = 'block';
+                        return response.json();
+                    } else {
+                        throw new Error('Not authenticated');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('auth-check').style.display = 'block';
+                    document.getElementById('booking-section').style.display = 'none';
+                });
+        }
+
+        // Search for tee times
+        document.getElementById('search-tee-times').addEventListener('click', function() {
+            const course = document.getElementById('course-select').value;
+            const holes = document.getElementById('holes-select').value;
+            
+            if (!course || !holes) {
+                alert('Please select both a course and number of holes');
+                return;
+            }
+            
+            fetch(`/api/tee-times/${course}/${holes}`)
+                .then(response => response.json())
+                .then(data => {
+                    const teeTimesList = document.getElementById('tee-times-list');
+                    teeTimesList.innerHTML = '';
+                    
+                    if (data.teeTimeSlots.length === 0) {
+                        teeTimesList.innerHTML = '<p>No tee times available for the selected options.</p>';
+                        return;
+                    }
+                    
+                    data.teeTimeSlots.forEach(slot => {
+                        const teeTimeCard = document.createElement('div');
+                        teeTimeCard.className = 'tee-time-card';
+                        teeTimeCard.innerHTML = `
+                            <div class="tee-time-details">
+                                <h3>${slot.course}</h3>
+                                <p>${slot.holes} - ${slot.date}</p>
+                                <p>Time: ${slot.time}</p>
+                            </div>
+                            <button class="select-time-btn" data-id="${slot.id}" ${!slot.available ? 'disabled' : ''}>
+                                ${slot.available ? 'Select' : 'Booked'}
+                            </button>
+                        `;
+                        teeTimesList.appendChild(teeTimeCard);
+                    });
+                    
+                    // Add event listeners to select buttons
+                    document.querySelectorAll('.select-time-btn').forEach(btn => {
+                        if (!btn.disabled) {
+                            btn.addEventListener('click', function() {
+                                const teeTimeId = this.getAttribute('data-id');
+                                selectTeeTime(teeTimeId);
+                            });
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching tee times:', error);
+                });
+        });
+        
+        // Select a tee time
+        function selectTeeTime(teeTimeId) {
+            fetch(`/api/tee-times`)
+                .then(response => response.json())
+                .then(data => {
+                    const teeTime = data.teeTimeSlots.find(slot => slot.id === parseInt(teeTimeId));
+                    
+                    if (teeTime) {
+                        document.getElementById('tee-time-id').value = teeTime.id;
+                        document.getElementById('selected-tee-time').innerHTML = `
+                            <div class="selected-time-details">
+                                <h3>${teeTime.course}</h3>
+                                <p>${teeTime.holes} - ${teeTime.date}</p>
+                                <p>Time: ${teeTime.time}</p>
+                            </div>
+                        `;
+                        document.getElementById('booking-form-container').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching tee time details:', error);
+                });
+        }
+        
+        // Submit booking
+        document.getElementById('booking-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const teeTimeId = document.getElementById('tee-time-id').value;
+            const players = document.getElementById('players').value;
+            
+            fetch('/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    teeTimeId: teeTimeId,
+                    players: players
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('booking-message').innerText = data.message;
+                    document.getElementById('booking-form-container').style.display = 'none';
+                    
+                    // Show booking confirmation
+                    const booking = data.booking;
+                    document.getElementById('booking-details').innerHTML = `
+                        <div class="confirmation-details">
+                            <p><strong>Course:</strong> ${booking.teeTime.course}</p>
+                            <p><strong>Date:</strong> ${booking.teeTime.date}</p>
+                            <p><strong>Time:</strong> ${booking.teeTime.time}</p>
+                            <p><strong>Holes:</strong> ${booking.teeTime.holes}</p>
+                            <p><strong>Players:</strong> ${booking.players}</p>
+                            <p><strong>Booking Reference:</strong> #${booking.id}</p>
+                        </div>
+                    `;
+                    document.getElementById('booking-confirmation').style.display = 'block';
+                    
+                    // Refresh tee times
+                    document.getElementById('search-tee-times').click();
+                } else {
+                    document.getElementById('booking-message').innerText = data.message || "Booking failed. Please try again.";
+                }
+            })
+            .catch(error => {
+                document.getElementById('booking-message').innerText = "Booking failed. Please try again.";
+                console.error('Error making booking:', error);
+            });
+        });
+
+        // Load navbar and check authentication
+        fetch("navbar.html")
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("navbar-container").innerHTML = data;
+                checkAuth();
+            });
+    </script>
+
+    <style>
+        /* Background Styling */
+        body {
+            background: url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Auth Check */
+        .auth-check {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .auth-check a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Box Styling for Booking Containers */
+        .booking-container, .tee-times-container {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        /* Form Title */
+        .form-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        /* Course Selection */
+        .course-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .booking-select {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .search-button {
+            padding: 12px;
+            background: #007BFF;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-button:hover {
+            background: #0056b3;
+        }
+
+        /* Tee Times List */
+        .tee-times-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tee-time-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #333;
+        }
+
+        .tee-time-details h3 {
+            margin: 0 0 10px 0;
+            color: #007BFF;
+        }
+
+        .select-time-btn {
+            padding: 8px;
+            background: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .select-time-btn:disabled {
+            background: #dc3545;
+            cursor: not-allowed;
+        }
+
+        /* Selected Tee Time */
+        .selected-time-details {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        /* Input Fields */
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            color: black;
+        }
+
+        /* Book Now Button */
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007BFF;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        /* Booking Confirmation */
+        .confirmation-details {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: left;
+            color: #333;
+        }
+
+        .confirmation-details p {
+            margin: 10px 0;
+        }
+
+        /* Fade-in Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+</body>
+</html>
