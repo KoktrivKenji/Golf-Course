@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golf Booking - Your Ultimate Golf Experience</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<div id="navbar-container"></div>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Welcome to Your Golf Booking Experience</h1>
+        <p>Discover and reserve the finest golf courses tailored for you.</p>
+        <a href="booking.html" class="btn">Book Now</a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+    <h2>Why Choose Us?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <h3>✔ Seamless Online Booking</h3>
+            <p>Quick and convenient booking process.</p>
+        </div>
+        <div class="feature-card">
+            <h3>✔ Personalized Course Recommendations</h3>
+            <p>Personalized course suggestions based on your preferences.</p>
+        </div>
+        <div class="feature-card">
+            <h3>✔ AI Assistant</h3>
+            <p>With the help of AI.</p>
+        </div>
+        <div class="feature-card">
+            <h3>✔ Verified</h3>
+        </div>
+    </div>
+</section>
+
+<script>
+    fetch("navbar.html")
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("navbar-container").innerHTML = data;
+        });
+</script>
+
+<style>
+    /* Background Styling */
+    body {
+        background: url('./uploads/background/golf-background.png') no-repeat center center fixed;
+        background-size: cover;
+        font-family: Arial, sans-serif;
+        color: black;
+    }
+
+    /* Hero Section */
+    .hero {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh;
+        text-align: center;
+    }
+
+    .hero-content {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 15px;
+        animation: fadeIn 1.5s ease-in-out;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    .hero p {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    /* CTA Button */
+    .btn {
+        display: inline-block;
+        padding: 12px 25px;
+        font-size: 18px;
+        font-weight: bold;
+        background-color: #007bff;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background 0.3s ease-in-out;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* Features Section */
+    .features {
+        text-align: center;
+        padding: 50px 20px;
+    }
+
+    .features h2 {
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+
+    /* Feature Grid */
+    .features-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .feature-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 10px;
+        width: 250px;
+        text-align: center;
+        animation: fadeIn 1.5s ease-in-out;
+    }
+
+    .feature-card h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .feature-card p {
+        font-size: 14px;
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+</body>
+</html>
